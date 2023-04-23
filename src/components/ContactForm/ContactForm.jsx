@@ -1,55 +1,76 @@
+import React from 'react';
 import { Formik } from 'formik';
-// import { Component } from "react";
-import { nanoid } from 'nanoid'
-import PropTypes from 'prop-types'
+import { useDispatch } from 'react-redux';
+import { addContact } from '../../redux/contactSlice';
+import { useSelector } from 'react-redux';
+import { getContacts } from 'redux/selectors';
 import * as Yup from 'yup';
-import {FormField, Form, Field, ErrorMessage, SubmitButton} from './ContactForm.styled'
-
+import {
+  FormField,
+  Form,
+  Field,
+  ErrorMessage,
+  SubmitButton,
+} from './ContactForm.styled';
 
 const ContactFormSchema = Yup.object().shape({
-   
-    name: Yup.string()
-        .matches(/^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$/, 'Is not in correct format')
-        .required('Please, enter contact name'),
-    number: Yup.string()
-        .matches(/\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/, 'Is not in correct format')
-        .required('Please, enter phone number'),
+  name: Yup.string()
+    .matches(
+      /^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$/,
+      'Is not in correct format'
+    )
+    .required('Please, enter contact name'),
+  number: Yup.string()
+    .matches(
+      /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/,
+      'Is not in correct format'
+    )
+    .required('Please, enter phone number'),
 });
 
-export const ContactForm = ({onSubmit}) => {
-    return (
-        <Formik
-            initialValues={{ name: '', number: '' }}
-            validationSchema={ContactFormSchema}
-            onSubmit={(values, actions) => {
-                onSubmit({ ...values, id: nanoid() });
-                actions.resetForm()
-            }}
-        >
-            <Form>
-                <FormField>
-                    Name
-                    <Field type="text" name="name"/>
-                    <ErrorMessage name="name" component="span"/>
-                </FormField>
-                <br></br>
-                <FormField htmlFor="">
-                    Number
-                    <Field type="tel" name="number"/>
-                    <ErrorMessage name="number" component="span"/>
-                </FormField>
-                <br></br>
-                <SubmitButton type="submit">Add contact</SubmitButton>
-            </Form>
-            </Formik>
-        )
-}
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
 
-ContactForm.propTypes = {
-    onSubmit: PropTypes.func.isRequired
-}
+  return (
+    <Formik
+      initialValues={{ name: '', number: '' }}
+      validationSchema={ContactFormSchema}
+      onSubmit={(values, actions) => {
+        if (
+          contacts.find(
+            contact => contact.name.toLowerCase() === values.name.toLowerCase()
+          )
+        ) {
+          alert(`${values.name} is already in contacts`);
+        } else {
+          dispatch(addContact(values));
+          actions.resetForm();
+        }
+      }}
+    >
+      <Form>
+        <FormField>
+          Name
+          <Field type="text" name="name" />
+          <ErrorMessage name="name" component="span" />
+        </FormField>
+        <br></br>
+        <FormField htmlFor="">
+          Number
+          <Field type="tel" name="number" />
+          <ErrorMessage name="number" component="span" />
+        </FormField>
+        <br></br>
+        <SubmitButton type="submit">Add contact</SubmitButton>
+      </Form>
+    </Formik>
+  );
+};
 
-
+// ContactForm.propTypes = {
+//   onSubmit: PropTypes.func.isRequired,
+// };
 
 // export class ContactForm extends Component {
 //     state = {
@@ -63,23 +84,22 @@ ContactForm.propTypes = {
 //         // Перезаписуємо в стейт name i number
 //         this.setState({
 //             [name]: value
-//         })       
+//         })
 //     }
-    
+
 //     // Метод сабміну форми.
 //     handleSubmit = event => {
 //         event.preventDefault();
 //         // this.props.onSubmit({ name: this.state.name, number: this.state.number, id: nanoid() })
 
-
-//         // Предаємо новий об'єкт контакту в App через функцію onSubmit (вона передана пропом onSubmit={this.addContact} ) 
+//         // Предаємо новий об'єкт контакту в App через функцію onSubmit (вона передана пропом onSubmit={this.addContact} )
 //         this.props.onSave({ ...this.state, id: nanoid() })
 //         this.resetForm()
 //     }
 
 //     resetForm = () => {
 //         this.setState({name: '', number: ''})
-//     } 
+//     }
 
 //     render() {
 //         return (
@@ -106,7 +126,7 @@ ContactForm.propTypes = {
 //                         // pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
 //                         title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
 //                         required
-                        
+
 //                         value={this.state.number}
 //                         // При введенні даних в інпут викликаємо метод для записування в стейт
 //                         onChange={this.handleChange}
@@ -116,6 +136,5 @@ ContactForm.propTypes = {
 //                 <button type="submit">Add contact</button>
 //             </form>
 //         )
-//     }  
+//     }
 // }
-
