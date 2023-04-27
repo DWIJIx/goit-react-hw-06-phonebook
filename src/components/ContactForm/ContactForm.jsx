@@ -4,6 +4,9 @@ import { useDispatch } from 'react-redux';
 import { addContact } from '../../redux/contactSlice';
 import { useSelector } from 'react-redux';
 import { getContacts } from 'redux/selectors';
+// import { Component } from "react";
+// import { nanoid } from 'nanoid';
+// import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import {
   FormField,
